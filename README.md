@@ -1,2 +1,176 @@
-# Advanced-Menu-Items-Visibility-Control
-Control menu item visibility based on Login Status, WordPress User Roles, Restrict Content Pro Membership and Restrict Content Pro Access Levels.
+# Advanced Menu Items Visibility Control
+
+A WordPress plugin that provides advanced visibility controls for navigation menu items based on user authentication status, roles, and Restrict Content Pro membership settings.
+
+## Description
+
+**Advanced Menu Items Visibility Control** extends WordPress's native menu system by adding granular visibility options to individual menu items. Control which users see specific menu items based on their login status, WordPress roles, RCP membership levels, and access levels.
+
+This plugin integrates seamlessly with [Restrict Content Pro](https://restrictcontentpro.com/) to provide membership-based menu visibility, while also working independently for role-based and login-status controls.
+
+## Features
+
+- **Login Status Control**: Show menu items to everyone, only logged-in users, or only logged-out users
+- **WordPress Role Restrictions**: Limit menu visibility to specific WordPress user roles
+- **RCP Membership Level Integration**: Show menu items only to members with specific membership levels
+- **RCP Access Level Support**: Control visibility based on RCP access levels (0-10+)
+- **Multiple Criteria Support**: Combine multiple restrictions (all criteria must match)
+- **Clean Admin UI**: Accordion-style interface in the menu editor
+- **Smart Conditionals**: RCP options only appear when "Logged In" is selected
+- **Automatic Child Hiding**: Child menu items are hidden when parent items are hidden
+
+## Requirements
+
+- WordPress 5.0 or higher
+- PHP 7.0 or higher
+- [Restrict Content Pro](https://restrictcontentpro.com/) (optional, required only for membership/access level features)
+
+## Installation
+
+### Manual Installation
+
+1. Download the plugin files
+2. Upload the `advanced-menu-items-visibility-control` folder to `/wp-content/plugins/`
+3. Activate the plugin through the 'Plugins' menu in WordPress
+4. Navigate to Appearance → Menus to configure visibility options
+
+### GitHub Installation
+
+```bash
+cd wp-content/plugins
+git clone https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control.git
+```
+
+Then activate the plugin in WordPress.
+
+## Usage
+
+### Basic Setup
+
+1. Go to **Appearance → Menus** in your WordPress dashboard
+2. Select a menu to edit or create a new one
+3. Click on any menu item to expand its settings
+4. Find the **"Visibility Options"** accordion section
+5. Configure your desired visibility rules
+
+### Visibility Options
+
+#### 1. Login Status
+
+Choose one of the following:
+- **Show to Everyone** (default): No restrictions
+- **Show only to Logged In Users**: Menu item visible only to authenticated users
+- **Show only to Logged Out Users**: Menu item visible only to guests
+
+#### 2. User Roles
+
+Select one or more WordPress user roles. The menu item will only be visible to users who have at least one of the selected roles.
+
+Available roles include:
+- Administrator
+- Editor
+- Author
+- Contributor
+- Subscriber
+- Custom roles (if defined)
+
+#### 3. Membership Levels (Requires RCP + "Logged In" status)
+
+Select specific Restrict Content Pro membership levels. Only members with one of the selected membership levels will see the menu item.
+
+*Note: This option only appears when Restrict Content Pro is active and "Show only to Logged In Users" is selected.*
+
+#### 4. Access Levels (Requires RCP + "Logged In" status)
+
+Set a minimum RCP access level (0-10+). Only users with the specified access level or higher will see the menu item.
+
+*Note: This option only appears when Restrict Content Pro is active and "Show only to Logged In Users" is selected.*
+
+### Logic Rules
+
+When multiple restrictions are applied:
+- **Login Status** is checked first
+- If "Logged Out" is selected, all other checks are skipped
+- If "Logged In" is selected, the user must match **ALL** selected criteria:
+  - Must have at least one of the selected **roles** (if any specified)
+  - Must have at least one of the selected **membership levels** (if any specified)
+  - Must meet the minimum **access level** (if specified)
+
+## Examples
+
+### Example 1: Members-Only Resource Center
+
+Create a menu item called "Member Resources" that's only visible to users with a "Premium" membership:
+1. Set Login Status: **Show only to Logged In Users**
+2. Select Membership Level: **Premium**
+
+### Example 2: Admin Dashboard Link
+
+Create a menu item visible only to Administrators:
+1. Set Login Status: **Show only to Logged In Users**
+2. Select User Role: **Administrator**
+
+### Example 3: Login/Logout Links
+
+Create two menu items:
+- **"Login"**: Set to **Show only to Logged Out Users**
+- **"Logout"**: Set to **Show only to Logged In Users**
+
+### Example 4: VIP Content
+
+Show a menu item only to members with VIP status (Level 5 or higher):
+1. Set Login Status: **Show only to Logged In Users**
+2. Set Access Level: **5 and higher**
+
+## Screenshots
+
+The plugin adds an accordion-style "Visibility Options" section to each menu item in the WordPress menu editor, providing an intuitive interface for configuring all visibility rules.
+
+## Frequently Asked Questions
+
+### Does this plugin require Restrict Content Pro?
+
+No. The plugin works independently for login status and role-based restrictions. RCP is only required if you want to use membership level or access level features.
+
+### What happens if I deactivate Restrict Content Pro?
+
+The plugin will continue to work for login status and role-based restrictions. Membership and access level restrictions will be ignored.
+
+### Can I use multiple restrictions together?
+
+Yes. When multiple restrictions are set, users must satisfy **ALL** criteria to see the menu item (AND logic, not OR).
+
+### Will child menu items be hidden automatically?
+
+Yes. If a parent menu item is hidden, all its children are automatically hidden as well.
+
+### Does this affect menu performance?
+
+The plugin uses efficient WordPress hooks and only processes menu items on the frontend. Performance impact is minimal.
+
+## Changelog
+
+### 1.0
+- Initial release
+- Login status control (everyone/logged in/logged out)
+- WordPress role-based restrictions
+- Restrict Content Pro membership level integration
+- Restrict Content Pro access level support
+- Accordion-style admin interface
+- Automatic parent-child menu handling
+
+## Author
+
+**Guilamu**
+
+## License
+
+This plugin is provided as-is. Please test thoroughly before using in production environments.
+
+## Support
+
+For bug reports, feature requests, or contributions, please visit the [GitHub repository](https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control).
+
+---
+
+**Note**: This plugin modifies menu visibility on the frontend. Always test your menu configurations with different user roles and login states to ensure they work as expected.
