@@ -1,3 +1,5 @@
+![Plugin Screenshot](https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/blob/main/screenshot.png)
+
 # Advanced Menu Items Visibility Control
 
 A WordPress plugin that provides advanced visibility controls for navigation menu items based on user authentication status, roles, and Restrict Content Pro membership settings.
