@@ -57,7 +57,7 @@ function amiv_check_for_updates( $update, array $plugin_data, string $plugin_fil
         'version'     => $new_version,
         'url'         => $release_data['html_url'],
         'package'     => $release_data['zipball_url'],
-        'tested'      => '6.7', // Update as needed
+        'tested'      => '6.9',
         'requires_php' => '7.0',
     );
 }
