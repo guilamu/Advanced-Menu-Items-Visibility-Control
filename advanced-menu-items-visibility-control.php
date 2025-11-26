@@ -1,11 +1,64 @@
 <?php
 /*
-Plugin Name:    Advanced Menu Items Visibility Control
-Description:    Control menu item visibility based on Login Status, WordPress User Roles, Restrict Content Pro Membership and Restrict Content Pro Access Levels.
-Version:        1.0
-URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control
-Author:         Guilamu
+Plugin Name: Advanced Menu Items Visibility Control
+Description: Control menu item visibility based on Login Status, WordPress User Roles, Restrict Content Pro Membership and Restrict Content Pro Access Levels.
+Version: 1.0
+Author: Guilamu
+Plugin URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control
+Update URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/
 */
+
+add_filter( 'update_plugins_github.com', 'amiv_check_for_updates', 10, 4 );
+
+/**
+ * Check for updates from GitHub
+ */
+function amiv_check_for_updates( $update, array $plugin_data, string $plugin_file, $locales ) {
+    // Only check this specific plugin
+    if ( 'advanced-menu-items-visibility-control/advanced-menu-items-visibility-control.php' !== $plugin_file ) {
+        return $update;
+    }
+    
+    // Skip if update already found
+    if ( ! empty( $update ) ) {
+        return $update;
+    }
+    
+    // Fetch latest release from GitHub API
+    $response = wp_remote_get(
+        'https://api.github.com/repos/guilamu/Advanced-Menu-Items-Visibility-Control/releases/latest',
+        array(
+            'user-agent' => 'guilamu',
+        )
+    );
+    
+    if ( is_wp_error( $response ) ) {
+        return $update;
+    }
+    
+    $release_data = json_decode( wp_remote_retrieve_body( $response ), true );
+    
+    if ( empty( $release_data ) ) {
+        return $update;
+    }
+    
+    $new_version = ltrim( $release_data['tag_name'], 'v' ); // Remove 'v' prefix if exists
+    
+    // Compare versions
+    if ( ! version_compare( $plugin_data['Version'], $new_version, '<' ) ) {
+        return false;
+    }
+    
+    // Return update data
+    return array(
+        'slug'        => 'advanced-menu-items-visibility-control',
+        'version'     => $new_version,
+        'url'         => $release_data['html_url'],
+        'package'     => $release_data['zipball_url'],
+        'tested'      => '6.7', // Update as needed
+        'requires_php' => '7.0',
+    );
+}
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
