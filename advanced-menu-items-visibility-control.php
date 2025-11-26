@@ -66,6 +66,63 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+add_filter( 'plugins_api', 'amiv_plugin_information', 10, 3 );
+
+/**
+ * Provide plugin information for the "View details" modal
+ */
+function amiv_plugin_information( $result, $action, $args ) {
+    // Only handle plugin_information requests for our plugin
+    if ( $action !== 'plugin_information' ) {
+        return $result;
+    }
+    
+    if ( ! isset( $args->slug ) || $args->slug !== 'advanced-menu-items-visibility-control' ) {
+        return $result;
+    }
+    
+    // Fetch latest release from GitHub
+    $response = wp_remote_get(
+        'https://api.github.com/repos/guilamu/Advanced-Menu-Items-Visibility-Control/releases/latest',
+        array(
+            'user-agent' => 'guilamu',
+        )
+    );
+    
+    if ( is_wp_error( $response ) ) {
+        return $result;
+    }
+    
+    $release_data = json_decode( wp_remote_retrieve_body( $response ), true );
+    
+    if ( empty( $release_data ) ) {
+        return $result;
+    }
+    
+    $version = ltrim( $release_data['tag_name'], 'v' );
+    
+    // Return plugin information object
+    $plugin_info = new stdClass();
+    $plugin_info->name = 'Advanced Menu Items Visibility Control';
+    $plugin_info->slug = 'advanced-menu-items-visibility-control';
+    $plugin_info->version = $version;
+    $plugin_info->author = '<a href="https://github.com/guilamu">Guilamu</a>';
+    $plugin_info->homepage = 'https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control';
+    $plugin_info->download_link = $release_data['zipball_url'];
+    $plugin_info->requires = '5.0';
+    $plugin_info->tested = '6.9';
+    $plugin_info->requires_php = '7.0';
+    $plugin_info->last_updated = $release_data['published_at'];
+    
+    // Add sections (description, changelog, etc.)
+    $plugin_info->sections = array(
+        'description' => 'Control menu item visibility based on Login Status, WordPress User Roles, Restrict Content Pro Membership and Restrict Content Pro Access Levels.',
+        'changelog' => '<h4>' . esc_html( $version ) . '</h4><p>' . esc_html( $release_data['body'] ) . '</p>',
+    );
+    
+    return $plugin_info;
+}
+
 class RCP_Menu_Items_Visibility {
 
     /**
