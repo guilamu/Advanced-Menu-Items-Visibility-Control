@@ -1,0 +1,59 @@
+# Copyright (C) 2025 Guilamu
+# This file is distributed under the same license as the Advanced Menu Items Visibility Control plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Advanced Menu Items Visibility Control 1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/issues\n"
+"POT-Creation-Date: 2025-11-26 09:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: \n"
+
+#: advanced-menu-items-visibility-control.php:284
+msgid "Visibility Options"
+msgstr ""
+
+#: advanced-menu-items-visibility-control.php:292
+msgid "Restrict by Login Status:"
+msgstr ""
+
+#: advanced-menu-items-visibility-control.php:295
+msgid "Show to Everyone"
+msgstr ""
+
+#: advanced-menu-items-visibility-control.php:296
+msgid "Show only if Logged In"
+msgstr ""
+
+#: advanced-menu-items-visibility-control.php:297
+msgid "Show only if NOT Logged In"
+msgstr ""
+
+#: advanced-menu-items-visibility-control.php:302
+msgid "Restrict to User Roles:"
+msgstr ""
+
+#: advanced-menu-items-visibility-control.php:321
+msgid "Restrict to Membership Levels (RCP):"
+msgstr ""
+
+#: advanced-menu-items-visibility-control.php:333
+msgid "(Show only if NOT a member)"
+msgstr ""
+
+#: advanced-menu-items-visibility-control.php:336
+msgid "No membership levels found."
+msgstr ""
+
+#: advanced-menu-items-visibility-control.php:344
+msgid "Restrict to Access Level (RCP):"
+msgstr ""
+
+#: advanced-menu-items-visibility-control.php:347
+msgid "Any (No Restriction)"
+msgstr ""
+
+#: advanced-menu-items-visibility-control.php:358
+msgid "If both Membership Levels and Access Level are set, the user must satisfy both conditions to see this item."
+msgstr ""
