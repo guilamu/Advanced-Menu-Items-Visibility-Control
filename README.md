@@ -17,6 +17,7 @@ This plugin integrates seamlessly with [Restrict Content Pro](https://restrictco
 - **RCP Membership Level Integration**: Show menu items only to members with specific membership levels
 - **RCP Access Level Support**: Control visibility based on RCP access levels (0-10+)
 - **Multiple Criteria Support**: Combine multiple restrictions (all criteria must match)
+- **Translation Ready**: Full internationalization support with included French translation
 - **Clean Admin UI**: Accordion-style interface in the menu editor
 - **Smart Conditionals**: RCP options only appear when "Logged In" is selected
 - **Automatic Child Hiding**: Child menu items are hidden when parent items are hidden
@@ -45,7 +46,35 @@ git clone https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control.git
 
 Then activate the plugin in WordPress.
 
-## Usage
+## Translation
+
+The plugin is fully translation-ready and includes the following translations:
+
+### Available Languages
+
+- **English** (default)
+- **French (Français)** - Complete translation included
+
+### Translation Files
+
+The plugin includes:
+- `languages/advanced-menu-items-visibility-control.pot` - Template file for translators
+- `languages/advanced-menu-items-visibility-control-fr_FR.po` - French translation source
+- `languages/advanced-menu-items-visibility-control-fr_FR.mo` - French translation (compiled)
+
+### Contributing Translations
+
+To contribute a translation:
+
+1. Copy the `.pot` file from the `languages/` folder
+2. Rename it to `advanced-menu-items-visibility-control-{locale}.po` (e.g., `de_DE.po` for German)
+3. Use [Poedit](https://poedit.net/) or another translation tool to translate the strings
+4. Compile the `.po` file to `.mo` format
+5. Submit a pull request with both `.po` and `.mo` files
+
+All translatable strings are wrapped with WordPress internationalization functions (`__()`, `_e()`, `esc_html_e()`).
+
+## ## Usage
 
 ### Basic Setup
 
@@ -98,32 +127,6 @@ When multiple restrictions are applied:
   - Must have at least one of the selected **membership levels** (if any specified)
   - Must meet the minimum **access level** (if specified)
 
-## Examples
-
-### Example 1: Members-Only Resource Center
-
-Create a menu item called "Member Resources" that's only visible to users with a "Premium" membership:
-1. Set Login Status: **Show only to Logged In Users**
-2. Select Membership Level: **Premium**
-
-### Example 2: Admin Dashboard Link
-
-Create a menu item visible only to Administrators:
-1. Set Login Status: **Show only to Logged In Users**
-2. Select User Role: **Administrator**
-
-### Example 3: Login/Logout Links
-
-Create two menu items:
-- **"Login"**: Set to **Show only to Logged Out Users**
-- **"Logout"**: Set to **Show only to Logged In Users**
-
-### Example 4: VIP Content
-
-Show a menu item only to members with VIP status (Level 5 or higher):
-1. Set Login Status: **Show only to Logged In Users**
-2. Set Access Level: **5 and higher**
-
 ## Screenshots
 
 The plugin adds an accordion-style "Visibility Options" section to each menu item in the WordPress menu editor, providing an intuitive interface for configuring all visibility rules.
@@ -152,6 +155,16 @@ The plugin uses efficient WordPress hooks and only processes menu items on the f
 
 ## Changelog
 
+### 1.2
+- Added multilingual support (i18n)
+- Included French translation (fr_FR)
+- Added POT file for translators
+- Improved text domain implementation
+
+### 1.1
+- Added plugin information API for update details modal
+- Enhanced GitHub update integration
+
 ### 1.0
 - Initial release
 - Login status control (everyone/logged in/logged out)
@@ -160,9 +173,6 @@ The plugin uses efficient WordPress hooks and only processes menu items on the f
 - Restrict Content Pro access level support
 - Accordion-style admin interface
 - Automatic parent-child menu handling
-
-### 1.2
-- Added multilingual support
   
 ## Author
 
