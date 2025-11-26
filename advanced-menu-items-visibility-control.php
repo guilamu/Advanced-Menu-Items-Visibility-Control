@@ -20,12 +20,12 @@ function amiv_check_for_updates( $update, array $plugin_data, string $plugin_fil
     if ( 'advanced-menu-items-visibility-control/advanced-menu-items-visibility-control.php' !== $plugin_file ) {
         return $update;
     }
-    
+
     // Skip if update already found
     if ( ! empty( $update ) ) {
         return $update;
     }
-    
+
     // Fetch latest release from GitHub API
     $response = wp_remote_get(
         'https://api.github.com/repos/guilamu/Advanced-Menu-Items-Visibility-Control/releases/latest',
@@ -33,33 +33,68 @@ function amiv_check_for_updates( $update, array $plugin_data, string $plugin_fil
             'user-agent' => 'guilamu',
         )
     );
-    
+
     if ( is_wp_error( $response ) ) {
         return $update;
     }
-    
+
     $release_data = json_decode( wp_remote_retrieve_body( $response ), true );
-    
+
     if ( empty( $release_data ) ) {
         return $update;
     }
-    
+
     $new_version = ltrim( $release_data['tag_name'], 'v' ); // Remove 'v' prefix if exists
-    
+
     // Compare versions
     if ( ! version_compare( $plugin_data['Version'], $new_version, '<' ) ) {
         return false;
     }
-    
-    // Return update data
-    return array(
-        'slug'        => 'advanced-menu-items-visibility-control',
-        'version'     => $new_version,
-        'url'         => $release_data['html_url'],
-        'package'     => $release_data['zipball_url'],
-        'tested'      => '6.9',
+
+    // Return update data with proper plugin reference
+    $update = array(
+        'slug'         => 'advanced-menu-items-visibility-control',
+        'plugin'       => $plugin_file,
+        'version'      => $new_version,
+        'url'          => $release_data['html_url'],
+        'package'      => ! empty( $release_data['assets'][0]['browser_download_url'] ) 
+                            ? $release_data['assets'][0]['browser_download_url'] 
+                            : $release_data['zipball_url'], // Fallback to zipball
+        'tested'       => '6.9',
         'requires_php' => '7.0',
     );
+
+    // Add filter to fix folder name during installation
+    add_filter( 'upgrader_source_selection', 'amiv_fix_plugin_folder_name', 10, 4 );
+
+    return $update;
+}
+
+
+
+/**
+ * Fix the plugin folder name after download from GitHub
+ */
+function amiv_fix_plugin_folder_name( $source, $remote_source, $upgrader, $extra = array() ) {
+    global $wp_filesystem;
+
+    // Only run for our plugin
+    if ( ! isset( $extra['plugin'] ) || $extra['plugin'] !== 'advanced-menu-items-visibility-control/advanced-menu-items-visibility-control.php' ) {
+        return $source;
+    }
+
+    // Get the correct folder name
+    $correct_folder_name = 'advanced-menu-items-visibility-control';
+    $new_source = trailingslashit( dirname( $source ) ) . $correct_folder_name . '/';
+
+    // Rename if needed
+    if ( $source !== $new_source ) {
+        if ( $wp_filesystem->move( $source, $new_source ) ) {
+            return $new_source;
+        }
+    }
+
+    return $source;
 }
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -108,9 +143,7 @@ function amiv_plugin_information( $result, $action, $args ) {
     $plugin_info->version = $version;
     $plugin_info->author = '<a href="https://github.com/guilamu">Guilamu</a>';
     $plugin_info->homepage = 'https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control';
-    $plugin_info->download_link = ! empty( $release_data['assets'][0]['browser_download_url'] ) 
-        ? $release_data['assets'][0]['browser_download_url'] 
-        : $release_data['zipball_url']; // Fallback to zipball
+    $plugin_info->download_link = $release_data['zipball_url'];
     $plugin_info->requires = '5.0';
     $plugin_info->tested = '6.9';
     $plugin_info->requires_php = '7.0';
