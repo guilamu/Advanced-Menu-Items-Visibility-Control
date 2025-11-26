@@ -161,6 +161,9 @@ The plugin uses efficient WordPress hooks and only processes menu items on the f
 - Accordion-style admin interface
 - Automatic parent-child menu handling
 
+### 1.1
+- Added multilingual support
+  
 ## Author
 
 **Guilamu**
