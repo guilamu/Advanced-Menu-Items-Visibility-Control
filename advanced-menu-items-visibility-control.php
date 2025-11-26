@@ -10,6 +10,13 @@ Text Domain: advanced-menu-items-visibility-control
 Domain Path: /languages
 */
 
+// ============================================================================
+// AUTO-UPDATE FUNCTIONALITY - Check for updates from GitHub
+// ============================================================================
+
+// Register the upgrader filter GLOBALLY (not conditionally)
+add_filter( 'upgrader_install_package_result', 'amiv_fix_plugin_folder_on_install', 10, 2 );
+
 add_filter( 'update_plugins_github.com', 'amiv_check_for_updates', 10, 4 );
 
 /**
@@ -58,47 +65,56 @@ function amiv_check_for_updates( $update, array $plugin_data, string $plugin_fil
         'version'      => $new_version,
         'url'          => $release_data['html_url'],
         'package'      => ! empty( $release_data['assets'][0]['browser_download_url'] ) 
-                            ? $release_data['assets'][0]['browser_download_url'] 
-                            : $release_data['zipball_url'], // Fallback to zipball
+                          ? $release_data['assets'][0]['browser_download_url'] 
+                          : $release_data['zipball_url'], // Fallback to zipball
         'tested'       => '6.9',
         'requires_php' => '7.0',
     );
 
-    // Add filter to fix folder name during installation
-    add_filter( 'upgrader_source_selection', 'amiv_fix_plugin_folder_name', 10, 4 );
-
     return $update;
 }
 
-
-
 /**
- * Fix the plugin folder name after download from GitHub
+ * Fix the plugin folder name after installation from GitHub
+ * This filter is registered GLOBALLY and fires after the package is installed
  */
-function amiv_fix_plugin_folder_name( $source, $remote_source, $upgrader, $extra = array() ) {
+function amiv_fix_plugin_folder_on_install( $result, $hook_extra ) {
     global $wp_filesystem;
 
+    // Only proceed if this is a plugin update/install
+    if ( ! isset( $hook_extra['plugin'] ) ) {
+        return $result;
+    }
+
     // Only run for our plugin
-    if ( ! isset( $extra['plugin'] ) || $extra['plugin'] !== 'advanced-menu-items-visibility-control/advanced-menu-items-visibility-control.php' ) {
-        return $source;
+    if ( $hook_extra['plugin'] !== 'advanced-menu-items-visibility-control/advanced-menu-items-visibility-control.php' ) {
+        return $result;
     }
 
-    // Get the correct folder name
-    $correct_folder_name = 'advanced-menu-items-visibility-control';
-    $new_source = trailingslashit( dirname( $source ) ) . $correct_folder_name . '/';
+    // Get the destination where WordPress installed the plugin
+    $destination = $result['destination'];
+    $destination_name = basename( $destination );
 
-    // Rename if needed
-    if ( $source !== $new_source ) {
-        if ( $wp_filesystem->move( $source, $new_source ) ) {
-            return $new_source;
-        }
+    // If the folder name is already correct, we're done
+    if ( $destination_name === 'advanced-menu-items-visibility-control' ) {
+        return $result;
     }
 
-    return $source;
-}
+    // Build the correct destination path
+    $correct_destination = trailingslashit( dirname( $destination ) ) . 'advanced-menu-items-visibility-control';
 
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+    // If a folder with the correct name already exists, remove it first
+    if ( $wp_filesystem->exists( $correct_destination ) ) {
+        $wp_filesystem->delete( $correct_destination, true );
+    }
+
+    // Move the downloaded plugin to the correct folder name
+    if ( $wp_filesystem->move( $destination, $correct_destination ) ) {
+        $result['destination'] = $correct_destination;
+        $result['destination_name'] = 'advanced-menu-items-visibility-control';
+    }
+
+    return $result;
 }
 
 add_filter( 'plugins_api', 'amiv_plugin_information', 10, 3 );
@@ -111,11 +127,11 @@ function amiv_plugin_information( $result, $action, $args ) {
     if ( $action !== 'plugin_information' ) {
         return $result;
     }
-    
+
     if ( ! isset( $args->slug ) || $args->slug !== 'advanced-menu-items-visibility-control' ) {
         return $result;
     }
-    
+
     // Fetch latest release from GitHub
     $response = wp_remote_get(
         'https://api.github.com/repos/guilamu/Advanced-Menu-Items-Visibility-Control/releases/latest',
@@ -123,40 +139,44 @@ function amiv_plugin_information( $result, $action, $args ) {
             'user-agent' => 'guilamu',
         )
     );
-    
+
     if ( is_wp_error( $response ) ) {
         return $result;
     }
-    
+
     $release_data = json_decode( wp_remote_retrieve_body( $response ), true );
-    
+
     if ( empty( $release_data ) ) {
         return $result;
     }
-    
+
     $version = ltrim( $release_data['tag_name'], 'v' );
-    
+
     // Return plugin information object
     $plugin_info = new stdClass();
-    $plugin_info->name = 'Advanced Menu Items Visibility Control';
-    $plugin_info->slug = 'advanced-menu-items-visibility-control';
-    $plugin_info->version = $version;
-    $plugin_info->author = '<a href="https://github.com/guilamu">Guilamu</a>';
-    $plugin_info->homepage = 'https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control';
+    $plugin_info->name          = 'Advanced Menu Items Visibility Control';
+    $plugin_info->slug          = 'advanced-menu-items-visibility-control';
+    $plugin_info->version       = $version;
+    $plugin_info->author        = '<a href="https://github.com/guilamu">Guilamu</a>';
+    $plugin_info->homepage      = 'https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control';
     $plugin_info->download_link = $release_data['zipball_url'];
-    $plugin_info->requires = '5.0';
-    $plugin_info->tested = '6.9';
-    $plugin_info->requires_php = '7.0';
-    $plugin_info->last_updated = $release_data['published_at'];
-    
+    $plugin_info->requires      = '5.0';
+    $plugin_info->tested        = '6.9';
+    $plugin_info->requires_php  = '7.0';
+    $plugin_info->last_updated  = $release_data['published_at'];
+
     // Add sections (description, changelog, etc.)
     $plugin_info->sections = array(
         'description' => 'Control menu item visibility based on Login Status, WordPress User Roles, Restrict Content Pro Membership and Restrict Content Pro Access Levels.',
-        'changelog' => '<h4>' . esc_html( $version ) . '</h4><p>' . esc_html( $release_data['body'] ) . '</p>',
+        'changelog'   => '<h4>' . esc_html( $version ) . '</h4><p>' . esc_html( $release_data['body'] ) . '</p>',
     );
-    
+
     return $plugin_info;
 }
+
+// ============================================================================
+// END AUTO-UPDATE FUNCTIONALITY
+// ============================================================================
 
 class RCP_Menu_Items_Visibility {
 
