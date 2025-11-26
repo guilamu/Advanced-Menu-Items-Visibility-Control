@@ -108,7 +108,9 @@ function amiv_plugin_information( $result, $action, $args ) {
     $plugin_info->version = $version;
     $plugin_info->author = '<a href="https://github.com/guilamu">Guilamu</a>';
     $plugin_info->homepage = 'https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control';
-    $plugin_info->download_link = $release_data['zipball_url'];
+    $plugin_info->download_link = ! empty( $release_data['assets'][0]['browser_download_url'] ) 
+        ? $release_data['assets'][0]['browser_download_url'] 
+        : $release_data['zipball_url']; // Fallback to zipball
     $plugin_info->requires = '5.0';
     $plugin_info->tested = '6.9';
     $plugin_info->requires_php = '7.0';
