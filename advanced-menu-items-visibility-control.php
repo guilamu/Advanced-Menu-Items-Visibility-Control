@@ -2,10 +2,12 @@
 /*
 Plugin Name: Advanced Menu Items Visibility Control
 Description: Control menu item visibility based on Login Status, WordPress User Roles, Restrict Content Pro Membership and Restrict Content Pro Access Levels.
-Version: 1.0
+Version: 1.01
 Author: Guilamu
 Plugin URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control
 Update URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/
+Text Domain: advanced-menu-items-visibility-control
+Domain Path: /languages
 */
 
 add_filter( 'update_plugins_github.com', 'amiv_check_for_updates', 10, 4 );
@@ -81,6 +83,9 @@ class RCP_Menu_Items_Visibility {
     }
 
     public static function init() {
+        // Load plugin text domain for translations
+        load_plugin_textdomain( 'advanced-menu-items-visibility-control', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
         if ( is_admin() ) {
             add_action( 'wp_nav_menu_item_custom_fields', array( __CLASS__, 'add_custom_fields' ), 10, 5 );
             add_action( 'wp_update_nav_menu_item', array( __CLASS__, 'save_custom_fields' ), 10, 3 );
@@ -281,7 +286,7 @@ class RCP_Menu_Items_Visibility {
 
             <!-- Accordion Toggle Button -->
             <a href="#" class="rcp-visibility-accordion-toggle <?php echo esc_attr( $accordion_class ); ?>">
-                <span><?php _e( 'Visibility Options', 'rcp' ); ?></span>
+                <span><?php _e( 'Visibility Options', 'advanced-menu-items-visibility-control' ); ?></span>
                 <span class="dashicons <?php echo esc_attr( $arrow_direction ); ?> toggle-indicator"></span>
             </a>
 
@@ -289,17 +294,17 @@ class RCP_Menu_Items_Visibility {
             <div class="field-rcp-visibility-content <?php echo esc_attr( $content_class ); ?>">
 
                 <!-- 1. LOGIN STATUS -->
-                <p style="margin-top:0;"><strong><?php _e( 'Restrict by Login Status:', 'rcp' ); ?></strong></p>
+                <p style="margin-top:0;"><strong><?php _e( 'Restrict by Login Status:', 'advanced-menu-items-visibility-control' ); ?></strong></p>
                 <label style="display: block; margin-bottom: 10px;">
                     <select name="rcp_menu_item_login_status[<?php echo esc_attr( $item_id ); ?>]" class="widefat rcp-login-status-select">
-                        <option value="" <?php selected( $saved_login_status, '' ); ?>><?php _e( 'Show to Everyone', 'rcp' ); ?></option>
-                        <option value="logged_in" <?php selected( $saved_login_status, 'logged_in' ); ?>><?php _e( 'Show only to Logged In Users', 'rcp' ); ?></option>
-                        <option value="logged_out" <?php selected( $saved_login_status, 'logged_out' ); ?>><?php _e( 'Show only to Logged Out Users', 'rcp' ); ?></option>
+                        <option value="" <?php selected( $saved_login_status, '' ); ?>><?php _e( 'Show to Everyone', 'advanced-menu-items-visibility-control' ); ?></option>
+                        <option value="logged_in" <?php selected( $saved_login_status, 'logged_in' ); ?>><?php _e( 'Show only to Logged In Users', 'advanced-menu-items-visibility-control' ); ?></option>
+                        <option value="logged_out" <?php selected( $saved_login_status, 'logged_out' ); ?>><?php _e( 'Show only to Logged Out Users', 'advanced-menu-items-visibility-control' ); ?></option>
                     </select>
                 </label>
 
                 <!-- 2. USER ROLES -->
-                <p style="margin-bottom: 5px;"><strong><?php _e( 'Restrict to User Roles:', 'rcp' ); ?></strong></p>
+                <p style="margin-bottom: 5px;"><strong><?php _e( 'Restrict to User Roles:', 'advanced-menu-items-visibility-control' ); ?></strong></p>
                 <?php if ( $all_roles ) : ?>
                     <div style="max-height: 100px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #eee; background: #fff; padding: 5px;">
                         <?php foreach ( $all_roles as $role_slug => $role_name ) : ?>
@@ -318,7 +323,7 @@ class RCP_Menu_Items_Visibility {
                 <!-- 3. MEMBERSHIP LEVELS (RCP) - Only if RCP is installed AND logged_in is selected -->
                 <?php if ( $is_rcp_active ) : ?>
                     <div class="rcp-conditional-section" style="<?php echo ( $saved_login_status !== 'logged_in' ) ? 'display:none;' : ''; ?>">
-                        <p><strong><?php _e( 'Restrict to Membership Levels (RCP):', 'rcp' ); ?></strong></p>
+                        <p><strong><?php _e( 'Restrict to Membership Levels (RCP):', 'advanced-menu-items-visibility-control' ); ?></strong></p>
                         <?php if ( $rcp_levels ) : ?>
                             <div style="max-height: 100px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #eee; background: #fff; padding: 5px;">
                                 <?php foreach ( $rcp_levels as $level ) : ?>
@@ -333,7 +338,7 @@ class RCP_Menu_Items_Visibility {
                                 <?php endforeach; ?>
                             </div>
                         <?php else : ?>
-                            <p><?php _e( 'No membership levels found.', 'rcp' ); ?></p>
+                            <p><?php _e( 'No membership levels found.', 'advanced-menu-items-visibility-control' ); ?></p>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
@@ -341,10 +346,10 @@ class RCP_Menu_Items_Visibility {
                 <!-- 4. ACCESS LEVEL (RCP) - Only if RCP is installed AND logged_in is selected -->
                 <?php if ( $is_rcp_active ) : ?>
                     <div class="rcp-conditional-section" style="<?php echo ( $saved_login_status !== 'logged_in' ) ? 'display:none;' : ''; ?>">
-                        <p style="margin-bottom: 5px;"><strong><?php _e( 'Restrict to Access Level (RCP):', 'rcp' ); ?></strong></p>
+                        <p style="margin-bottom: 5px;"><strong><?php _e( 'Restrict to Access Level (RCP):', 'advanced-menu-items-visibility-control' ); ?></strong></p>
                         <label>
                             <select name="rcp_menu_item_access_level[<?php echo esc_attr( $item_id ); ?>]" class="widefat">
-                                <option value="" <?php selected( $saved_access_level, '' ); ?>><?php _e( 'Any (No Restriction)', 'rcp' ); ?></option>
+                                <option value="" <?php selected( $saved_access_level, '' ); ?>><?php _e( 'Any (No Restriction)', 'advanced-menu-items-visibility-control' ); ?></option>
                                 <?php for ( $i = 0; $i <= 10; $i++ ) : ?>
                                     <option value="<?php echo esc_attr( $i ); ?>" <?php selected( $saved_access_level, (string)$i ); ?>>
                                         <?php printf( __( '%d and higher', 'rcp' ), $i ); ?>
@@ -356,7 +361,7 @@ class RCP_Menu_Items_Visibility {
                 <?php endif; ?>
 
                 <p class="description" style="margin-top:10px; margin-bottom:0; color:#666;">
-                    <?php _e( 'Note: If multiple sections (Roles, Levels, Access) are used, the user must match ALL selected criteria.', 'rcp' ); ?>
+                    <?php _e( 'Note: If multiple sections (Roles, Levels, Access) are used, the user must match ALL selected criteria.', 'advanced-menu-items-visibility-control' ); ?>
                 </p>
 
             </div><!-- .field-rcp-visibility-content -->
