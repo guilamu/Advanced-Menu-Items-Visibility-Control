@@ -155,7 +155,7 @@ The plugin uses efficient WordPress hooks and only processes menu items on the f
 
 ## Changelog
 
-### 1.2
+### 1.2.1
 - Added multilingual support (i18n)
 - Included French translation (fr_FR)
 - Added POT file for translators
