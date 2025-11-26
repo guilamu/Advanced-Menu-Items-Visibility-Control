@@ -2,7 +2,7 @@
 /*
 Plugin Name: Advanced Menu Items Visibility Control
 Description: Control menu item visibility based on Login Status, WordPress User Roles, Restrict Content Pro Membership and Restrict Content Pro Access Levels.
-Version: 1.1
+Version: 1.2
 Author: Guilamu
 Plugin URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control
 Update URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/
