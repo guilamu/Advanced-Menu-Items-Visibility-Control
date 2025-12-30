@@ -1,0 +1,60 @@
+/**
+ * Advanced Menu Items Visibility Control - Admin Styles
+ *
+ * Styles for the visibility options accordion in the WordPress nav menu editor.
+ *
+ * @package Advanced_Menu_Items_Visibility_Control
+ */
+
+/* Conditional sections container */
+.rcp-conditional-section {
+    overflow: hidden;
+}
+
+/* Accordion toggle button */
+.rcp-visibility-accordion-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #1d2327;
+    text-decoration: none;
+    margin: 10px 0;
+    transition: background-color 0.2s ease;
+}
+
+.rcp-visibility-accordion-toggle:hover {
+    background: #e8e8e9;
+}
+
+.rcp-visibility-accordion-toggle.active {
+    background: #dcdcde;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.rcp-visibility-accordion-toggle .toggle-indicator {
+    margin-left: 10px;
+    color: #50575e;
+}
+
+/* Accordion content panel */
+.field-rcp-visibility-content {
+    display: none;
+    padding: 15px;
+    border: 1px solid #c3c4c7;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    background: #f9f9f9;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+.field-rcp-visibility-content.open-by-default {
+    display: block;
+}

@@ -155,6 +155,17 @@ The plugin uses efficient WordPress hooks and only processes menu items on the f
 
 ## Changelog
 
+### 1.2.2
+- **Security**: Added capability check in save function
+- **Security**: Fixed nonce duplication issue
+- **Security**: Replaced `_e()` with `esc_html_e()` for proper output escaping
+- **Performance**: Added transient caching for GitHub API calls
+- **Performance**: Implemented `update_meta_cache()` to prevent N+1 queries
+- **Architecture**: Externalized CSS/JS to separate files in `assets/`
+- **Architecture**: Refactored auto-update to class-based approach (`includes/class-github-updater.php`)
+- **Architecture**: Added `uninstall.php` for clean data removal
+- **Standards**: Changed to `admin_enqueue_scripts` hook per WordPress standards
+
 ### 1.2.1
 - Added multilingual support (i18n)
 - Included French translation (fr_FR)
