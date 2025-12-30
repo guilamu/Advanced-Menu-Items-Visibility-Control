@@ -2,7 +2,7 @@
 /*
 Plugin Name: Advanced Menu Items Visibility Control
 Description: Control menu item visibility based on Login Status, WordPress User Roles, Restrict Content Pro Membership and Restrict Content Pro Access Levels.
-Version: 1.2.2
+Version: 1.2.3
 Author: Guilamu
 Plugin URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control
 Update URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/
@@ -172,8 +172,8 @@ class RCP_Menu_Items_Visibility
                                                         <label style="display: block; margin-bottom: 3px;">
                                                             <input type="checkbox" 
                                                                    name="rcp_menu_item_levels[<?php echo esc_attr($item_id); ?>][]" 
-                                                                   value="<?php echo esc_attr($level->get_id()); ?>" 
-                                                                   <?php checked(in_array($level->get_id(), $saved_rcp_levels)); ?> 
+                                                                   value="<?php echo esc_attr($level->get_name()); ?>" 
+                                                                   <?php checked(in_array($level->get_name(), $saved_rcp_levels)); ?> 
                                                             />
                                                             <?php echo esc_html($level->get_name()); ?>
                                                         </label>
@@ -250,7 +250,8 @@ class RCP_Menu_Items_Visibility
         // 3. Save Membership Levels (only if RCP is active AND logged_in is selected)
         if (self::is_rcp_active() && $login_status === 'logged_in') {
             if (isset($_POST['rcp_menu_item_levels'][$menu_item_db_id])) {
-                $clean_levels = array_map('intval', $_POST['rcp_menu_item_levels'][$menu_item_db_id]);
+                // Store level names (not IDs) for more reliable comparison
+                $clean_levels = array_values(array_map('sanitize_text_field', $_POST['rcp_menu_item_levels'][$menu_item_db_id]));
                 update_post_meta($menu_item_db_id, '_rcp_menu_item_levels', $clean_levels);
             } else {
                 delete_post_meta($menu_item_db_id, '_rcp_menu_item_levels');
@@ -295,6 +296,7 @@ class RCP_Menu_Items_Visibility
             // --- PRIMARY CHECK 1: LOGIN STATUS (Logged In/Out) ---
             $required_login_status = get_post_meta($item->ID, '_rcp_menu_item_login_status', true);
 
+
             if ($required_login_status === 'logged_in' && !$is_logged_in) {
                 $visible = false;
             } elseif ($required_login_status === 'logged_out' && $is_logged_in) {
@@ -324,13 +326,15 @@ class RCP_Menu_Items_Visibility
                         if (!$is_logged_in) {
                             $visible = false;
                         } else {
-                            $user_level_ids = rcp_get_customer_membership_level_ids($user_id);
-                            $matches = array_intersect($required_levels, $user_level_ids);
+                            // Direct database query to bypass RCP API caching bug
+                            $user_level_names = self::get_user_membership_level_names_direct($user_id);
+                            $matches = array_intersect($required_levels, (array) $user_level_names);
                             if (empty($matches))
                                 $visible = false;
                         }
                     }
                 }
+
 
                 // --- CHECK 4: ACCESS LEVEL (only if RCP is active AND logged_in status is selected) ---
                 if ($is_rcp_active && $visible && $required_login_status === 'logged_in') {
@@ -339,7 +343,7 @@ class RCP_Menu_Items_Visibility
                         if (!$is_logged_in) {
                             $visible = false;
                         } else {
-                            if (!rcp_user_has_access_level($user_id, intval($required_access))) {
+                            if (function_exists('rcp_user_has_access_level') && !rcp_user_has_access_level($user_id, intval($required_access))) {
                                 $visible = false;
                             }
                         }
@@ -355,6 +359,53 @@ class RCP_Menu_Items_Visibility
         }
 
         return $items;
+    }
+
+    /**
+     * Get user membership level names.
+     * Uses direct membership query to avoid RCP API caching issues.
+     *
+     * @param int $user_id WordPress user ID
+     * @return array Array of membership level names
+     */
+    private static function get_user_membership_level_names_direct($user_id)
+    {
+        // Primary method: directly query active memberships using RCP's functions
+        // This bypasses RCP's API caching which can return stale/incomplete data
+        if (function_exists('rcp_get_customer_by_user_id') && function_exists('rcp_get_memberships')) {
+            $customer = rcp_get_customer_by_user_id($user_id);
+            if ($customer) {
+                $memberships = rcp_get_memberships(array(
+                    'customer_id' => $customer->get_id(),
+                    'status' => 'active'
+                ));
+                
+                $level_names = array();
+                foreach ($memberships as $membership) {
+                    $level_id = $membership->get_object_id();
+                    if (function_exists('rcp_get_membership_level')) {
+                        $level = rcp_get_membership_level($level_id);
+                        if ($level) {
+                            $level_names[] = $level->get_name();
+                        }
+                    }
+                }
+                
+                if (!empty($level_names)) {
+                    return array_unique($level_names);
+                }
+            }
+        }
+        
+        // Fallback: use standard RCP API (may have caching issues)
+        if (function_exists('rcp_get_customer_membership_level_names')) {
+            $names = rcp_get_customer_membership_level_names($user_id);
+            if (!empty($names)) {
+                return (array) $names;
+            }
+        }
+        
+        return array();
     }
 }
 

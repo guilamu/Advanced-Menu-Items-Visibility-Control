@@ -155,6 +155,12 @@ The plugin uses efficient WordPress hooks and only processes menu items on the f
 
 ## Changelog
 
+### 1.2.3
+- **Critical Fix**: Fixed RCP membership level detection that returned stale/cached data
+- Implemented direct membership query that bypasses RCP's `rcp_get_customer_membership_level_names()` API caching bug
+- Added `function_exists()` check for `rcp_user_has_access_level()` to prevent fatal errors on some RCP versions
+- Changed membership level comparison from IDs to names for more reliable matching
+
 ### 1.2.2
 - **Security**: Added capability check in save function
 - **Security**: Fixed nonce duplication issue
