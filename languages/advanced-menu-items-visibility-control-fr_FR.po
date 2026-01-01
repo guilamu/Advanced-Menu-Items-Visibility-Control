@@ -3,10 +3,10 @@
 # This file is distributed under the same license as the Advanced Menu Items Visibility Control plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Advanced Menu Items Visibility Control 1.0\n"
+"Project-Id-Version: Advanced Menu Items Visibility Control 1.2.4\n"
 "Report-Msgid-Bugs-To: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/issues\n"
-"POT-Creation-Date: 2025-11-26 09:00:00+00:00\n"
-"PO-Revision-Date: 2025-11-26 10:05+0100\n"
+"POT-Creation-Date: 2026-01-01 22:00:00+00:00\n"
+"PO-Revision-Date: 2026-01-01 22:01+0100\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -16,50 +16,46 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.4.4\n"
 
-#: advanced-menu-items-visibility-control.php:284
+#: advanced-menu-items-visibility-control.php:131
 msgid "Visibility Options"
 msgstr "Options de visibilité"
 
-#: advanced-menu-items-visibility-control.php:292
+#: advanced-menu-items-visibility-control.php:139
 msgid "Restrict by Login Status:"
 msgstr "Restreindre par statut de connexion :"
 
-#: advanced-menu-items-visibility-control.php:295
+#: advanced-menu-items-visibility-control.php:142
 msgid "Show to Everyone"
 msgstr "Afficher pour tous"
 
-#: advanced-menu-items-visibility-control.php:296
-msgid "Show only if Logged In"
-msgstr "Afficher uniquement si connecté"
+#: advanced-menu-items-visibility-control.php:143
+msgid "Show only to Logged In Users"
+msgstr "Afficher uniquement aux utilisateurs connectés"
 
-#: advanced-menu-items-visibility-control.php:297
-msgid "Show only if NOT Logged In"
-msgstr "Afficher uniquement si NON connecté"
+#: advanced-menu-items-visibility-control.php:144
+msgid "Show only to Logged Out Users"
+msgstr "Afficher uniquement aux utilisateurs déconnectés"
 
-#: advanced-menu-items-visibility-control.php:302
+#: advanced-menu-items-visibility-control.php:149
 msgid "Restrict to User Roles:"
 msgstr "Restreindre aux rôles utilisateur :"
 
-#: advanced-menu-items-visibility-control.php:321
+#: advanced-menu-items-visibility-control.php:168
 msgid "Restrict to Membership Levels (RCP):"
 msgstr "Restreindre aux niveaux d'adhésion (RCP) :"
 
-#: advanced-menu-items-visibility-control.php:333
-msgid "(Show only if NOT a member)"
-msgstr "(Afficher uniquement si NON membre)"
-
-#: advanced-menu-items-visibility-control.php:336
+#: advanced-menu-items-visibility-control.php:183
 msgid "No membership levels found."
 msgstr "Aucun niveau d'adhésion trouvé."
 
-#: advanced-menu-items-visibility-control.php:344
+#: advanced-menu-items-visibility-control.php:191
 msgid "Restrict to Access Level (RCP):"
 msgstr "Restreindre au niveau d'accès (RCP) :"
 
-#: advanced-menu-items-visibility-control.php:347
+#: advanced-menu-items-visibility-control.php:194
 msgid "Any (No Restriction)"
 msgstr "Tous (aucune restriction)"
 
-#: advanced-menu-items-visibility-control.php:358
-msgid "If both Membership Levels and Access Level are set, the user must satisfy both conditions to see this item."
-msgstr "Si les niveaux d'adhésion et le niveau d'accès sont définis, l'utilisateur doit satisfaire les deux conditions pour voir cet élément."
+#: advanced-menu-items-visibility-control.php:206
+msgid "Note: If multiple sections (Roles, Levels, Access) are used, the user must match ALL selected criteria."
+msgstr "Note : Si plusieurs sections (Rôles, Niveaux, Accès) sont utilisées, l'utilisateur doit correspondre à TOUS les critères sélectionnés."
