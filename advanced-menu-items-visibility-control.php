@@ -2,7 +2,7 @@
 /*
 Plugin Name: Advanced Menu Items Visibility Control
 Description: Control menu item visibility based on Login Status, WordPress User Roles, Restrict Content Pro Membership and Restrict Content Pro Access Levels.
-Version: 1.2.3
+Version: 1.2.4
 Author: Guilamu
 Plugin URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control
 Update URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/
@@ -69,7 +69,7 @@ class RCP_Menu_Items_Visibility
             'amiv-admin',
             plugins_url('assets/css/admin.css', __FILE__),
             array(),
-            '1.2.2'
+            '1.2.4'
         );
 
         // Enqueue admin scripts
@@ -77,7 +77,7 @@ class RCP_Menu_Items_Visibility
             'amiv-admin',
             plugins_url('assets/js/admin.js', __FILE__),
             array('jquery'),
-            '1.2.2',
+            '1.2.4',
             true
         );
     }
@@ -343,7 +343,7 @@ class RCP_Menu_Items_Visibility
                         if (!$is_logged_in) {
                             $visible = false;
                         } else {
-                            if (function_exists('rcp_user_has_access_level') && !rcp_user_has_access_level($user_id, intval($required_access))) {
+                            if (!self::user_has_access_level($user_id, intval($required_access))) {
                                 $visible = false;
                             }
                         }
@@ -359,6 +359,47 @@ class RCP_Menu_Items_Visibility
         }
 
         return $items;
+    }
+
+    /**
+     * Check if user has a membership with the required access level or higher.
+     * Implements proper access level checking using RCP's API since
+     * rcp_user_has_access_level is a filter hook, not a function.
+     *
+     * @param int $user_id WordPress user ID
+     * @param int $required_level Required access level (0-10)
+     * @return bool True if user has access level >= required
+     */
+    private static function user_has_access_level($user_id, $required_level)
+    {
+        if (!function_exists('rcp_get_customer_by_user_id') || !function_exists('rcp_get_memberships')) {
+            return false;
+        }
+
+        $customer = rcp_get_customer_by_user_id($user_id);
+        if (!$customer) {
+            return false;
+        }
+
+        $memberships = rcp_get_memberships(array(
+            'customer_id' => $customer->get_id(),
+            'status' => 'active'
+        ));
+
+        foreach ($memberships as $membership) {
+            $level_id = $membership->get_object_id();
+            if (function_exists('rcp_get_membership_level')) {
+                $level = rcp_get_membership_level($level_id);
+                if ($level && method_exists($level, 'get_access_level')) {
+                    $user_access_level = intval($level->get_access_level());
+                    if ($user_access_level >= $required_level) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
