@@ -35,8 +35,7 @@ jobs:
                     --exclude='node_modules' \
                     --exclude='.DS_Store' \
                     --exclude='*.md' \
-                    --exclude='WordPress-GitHub-AutoUpdate-Reference.md' \
-                    --exclude='WordPress-Extension-Development-Prompt.md' \
+                    --exclude='screenshot*.*' \
                     ./ build/advanced-menu-items-visibility-control/
           
           # Include README.md (useful for users)
