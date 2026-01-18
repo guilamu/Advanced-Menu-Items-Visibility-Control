@@ -2,7 +2,7 @@
 /*
 Plugin Name: Advanced Menu Items Visibility Control
 Description: Control menu item visibility based on Login Status, WordPress User Roles, Restrict Content Pro Membership and Restrict Content Pro Access Levels.
-Version: 1.2.4
+Version: 1.3.0
 Author: Guilamu
 Plugin URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control
 Update URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/
@@ -15,6 +15,11 @@ Requires PHP: 7.0
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// Plugin constants
+define('AMIV_VERSION', '1.3.0');
+define('AMIV_PLUGIN_FILE', __FILE__);
+define('AMIV_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
 // Include the GitHub auto-updater
 require_once plugin_dir_path(__FILE__) . 'includes/class-github-updater.php';
@@ -69,7 +74,7 @@ class RCP_Menu_Items_Visibility
             'amiv-admin',
             plugins_url('assets/css/admin.css', __FILE__),
             array(),
-            '1.2.4'
+            AMIV_VERSION
         );
 
         // Enqueue admin scripts
@@ -77,7 +82,7 @@ class RCP_Menu_Items_Visibility
             'amiv-admin',
             plugins_url('assets/js/admin.js', __FILE__),
             array('jquery'),
-            '1.2.4',
+            AMIV_VERSION,
             true
         );
     }
@@ -452,3 +457,43 @@ class RCP_Menu_Items_Visibility
 
 // Initialize
 RCP_Menu_Items_Visibility::load();
+
+/**
+ * Register with Guilamu Bug Reporter
+ */
+add_action('plugins_loaded', function() {
+    if (class_exists('Guilamu_Bug_Reporter')) {
+        Guilamu_Bug_Reporter::register(array(
+            'slug'        => 'advanced-menu-items-visibility-control',
+            'name'        => 'Advanced Menu Items Visibility Control',
+            'version'     => AMIV_VERSION,
+            'github_repo' => 'guilamu/Advanced-Menu-Items-Visibility-Control',
+        ));
+    }
+}, 20);
+
+/**
+ * Add 'Report a Bug' link to plugin row meta.
+ *
+ * @param array  $links Plugin row meta links.
+ * @param string $file  Plugin file path.
+ * @return array Modified links.
+ */
+function amiv_plugin_row_meta($links, $file) {
+    if (AMIV_PLUGIN_BASENAME !== $file) {
+        return $links;
+    }
+
+    if (class_exists('Guilamu_Bug_Reporter')) {
+        $links[] = sprintf(
+            '<a href="#" class="guilamu-bug-report-btn" data-plugin-slug="advanced-menu-items-visibility-control" data-plugin-name="%s">%s</a>',
+            esc_attr__('Advanced Menu Items Visibility Control', 'advanced-menu-items-visibility-control'),
+            esc_html__('🐛 Report a Bug', 'advanced-menu-items-visibility-control')
+        );
+    } else {
+        $links[] = '<a href="https://github.com/guilamu/guilamu-bug-reporter/releases" target="_blank">🐛 Report a Bug (install Bug Reporter)</a>';
+    }
+
+    return $links;
+}
+add_filter('plugin_row_meta', 'amiv_plugin_row_meta', 10, 2);

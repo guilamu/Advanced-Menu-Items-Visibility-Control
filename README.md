@@ -155,6 +155,11 @@ The plugin uses efficient WordPress hooks and only processes menu items on the f
 
 ## Changelog
 
+### 1.3.0
+- **New:** Integrated Guilamu Bug Reporter support
+- **New:** Added "Report a Bug" link in plugins list
+- **Improved:** Added version constant for centralized version management
+
 ### 1.2.4
 - **Critical Fix**: Fixed RCP Access Level checking which was non-functional
 
