@@ -155,6 +155,11 @@ The plugin uses efficient WordPress hooks and only processes menu items on the f
 
 ## Changelog
 
+### 1.3.1
+- **Improved:** Rewrote GitHub updater to match reference template (README.md parsing, Parsedown, tables_to_divs, plugin_info_css)
+- **New:** Added "View details" thickbox link in plugin row meta
+- **New:** Added Parsedown.php for Markdown-to-HTML conversion in plugin info modal
+
 ### 1.3.0
 - **New:** Integrated Guilamu Bug Reporter support
 - **New:** Added "Report a Bug" link in plugins list

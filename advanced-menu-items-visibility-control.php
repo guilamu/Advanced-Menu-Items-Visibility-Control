@@ -2,7 +2,7 @@
 /*
 Plugin Name: Advanced Menu Items Visibility Control
 Description: Control menu item visibility based on Login Status, WordPress User Roles, Restrict Content Pro Membership and Restrict Content Pro Access Levels.
-Version: 1.3.0
+Version: 1.3.1
 Author: Guilamu
 Plugin URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control
 Update URI: https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('AMIV_VERSION', '1.3.0');
+define('AMIV_VERSION', '1.3.1');
 define('AMIV_PLUGIN_FILE', __FILE__);
 define('AMIV_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
@@ -483,6 +483,18 @@ function amiv_plugin_row_meta($links, $file) {
     if (AMIV_PLUGIN_BASENAME !== $file) {
         return $links;
     }
+
+    // "View details" thickbox link — same pattern as WordPress.org-hosted plugins.
+    $links[] = sprintf(
+        '<a href="%s" class="thickbox open-plugin-details-modal" aria-label="%s" data-title="%s">%s</a>',
+        esc_url( self_admin_url(
+            'plugin-install.php?tab=plugin-information&plugin=advanced-menu-items-visibility-control'
+            . '&TB_iframe=true&width=772&height=926'
+        ) ),
+        esc_attr__( 'More information about Advanced Menu Items Visibility Control', 'advanced-menu-items-visibility-control' ),
+        esc_attr__( 'Advanced Menu Items Visibility Control', 'advanced-menu-items-visibility-control' ),
+        esc_html__( 'View details', 'advanced-menu-items-visibility-control' )
+    );
 
     if (class_exists('Guilamu_Bug_Reporter')) {
         $links[] = sprintf(
