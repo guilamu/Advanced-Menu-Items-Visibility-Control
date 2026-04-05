@@ -362,7 +362,38 @@ class AMIV_GitHub_Updater
             . '.md-tr { display: table-row; }'
             . '.md-tr > span { display: table-cell; padding: 6px 10px; border: 1px solid #ddd; vertical-align: top; }'
             . '.md-th > span { font-weight: 600; background: #f5f5f5; }'
+            // CSS Pattern Banner
+            . '#plugin-information-title.with-banner {'
+            . '  --s: 27px; --c1: #b2b2b2; --c2: #ffffff; --c3: #d9d9d9;'
+            . '  --_g: var(--c3) 0 120deg, #0000 0;'
+            . '  background:'
+            . '    conic-gradient(from -60deg at 50% calc(100%/3), var(--_g)),'
+            . '    conic-gradient(from 120deg at 50% calc(200%/3), var(--_g)),'
+            . '    conic-gradient(from 60deg at calc(200%/3), var(--c3) 60deg, var(--c2) 0 120deg, #0000 0),'
+            . '    conic-gradient(from 180deg at calc(100%/3), var(--c1) 60deg, var(--_g)),'
+            . '    linear-gradient(90deg, var(--c1) calc(100%/6), var(--c2) 0 50%,'
+            . '                          var(--c1) 0 calc(500%/6), var(--c2) 0) !important;'
+            . '  background-size: calc(1.732 * var(--s)) var(--s) !important;'
+            . '}'
+            . '#plugin-information-title.with-banner h2 {'
+            . '  position: relative; font-family: "Helvetica Neue", sans-serif;'
+            . '  display: inline-block; font-size: 30px; line-height: 1.68;'
+            . '  box-sizing: border-box; max-width: 100%; padding: 0 15px;'
+            . '  margin-top: 174px; color: #fff;'
+            . '  background: rgba(29, 35, 39, 0.9);'
+            . '  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);'
+            . '  box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);'
+            . '  border-radius: 8px;'
+            . '}'
             . '</style>';
+
+        // JS: add .with-banner class (WordPress only adds it for real image banners).
+        echo '<script>'
+            . 'document.addEventListener("DOMContentLoaded", function() {'
+            . '  var title = document.getElementById("plugin-information-title");'
+            . '  if (title) { title.classList.add("with-banner"); }'
+            . '});'
+            . '</script>';
     }
 
     // ------------------------------------------------------------------

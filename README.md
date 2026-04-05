@@ -155,6 +155,9 @@ The plugin uses efficient WordPress hooks and only processes menu items on the f
 
 ## Changelog
 
+### 1.3.2
+- **New:** Added CSS pattern banner in plugin details modal (geometric B&W background with styled h2 title pill, no external image required)
+
 ### 1.3.1
 - **Improved:** Rewrote GitHub updater to match reference template (README.md parsing, Parsedown, tables_to_divs, plugin_info_css)
 - **New:** Added "View details" thickbox link in plugin row meta
