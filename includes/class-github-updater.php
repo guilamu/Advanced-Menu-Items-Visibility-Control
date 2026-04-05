@@ -327,8 +327,23 @@ class AMIV_GitHub_Updater
             $res->sections['faq'] = $readme['faq'];
         }
 
-        $res->sections['changelog'] = !empty($readme['changelog'])
-            ? $readme['changelog']
+        // When an update is available, the local README only contains the
+        // installed version's changelog.  Prepend the GitHub release body
+        // so the user sees what's new in the upcoming version.
+        $changelog_html      = '';
+        $installed_version   = $plugin_data['Version'] ?? '0.0.0';
+
+        if ($release_data && !empty($release_data['body']) && version_compare($installed_version, $version, '<')) {
+            $changelog_html .= '<h4>' . esc_html($version) . '</h4>'
+                             . self::markdown_to_html($release_data['body']);
+        }
+
+        if (!empty($readme['changelog'])) {
+            $changelog_html .= $readme['changelog'];
+        }
+
+        $res->sections['changelog'] = !empty($changelog_html)
+            ? $changelog_html
             : sprintf(
                 '<p>See <a href="https://github.com/%s/%s/releases" target="_blank">GitHub releases</a> for changelog.</p>',
                 esc_attr(self::GITHUB_USER),
