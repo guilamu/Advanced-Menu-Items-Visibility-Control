@@ -211,10 +211,6 @@ The plugin uses efficient WordPress hooks and only processes menu items on the f
 
 **Guilamu**
 
-## License
-
-This plugin is provided as-is. Please test thoroughly before using in production environments. AGPL-3.0 license.
-
 ## Support
 
 For bug reports, feature requests, or contributions, please visit the [GitHub repository](https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control).
