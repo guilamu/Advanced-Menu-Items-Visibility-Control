@@ -155,6 +155,12 @@ The plugin uses efficient WordPress hooks and only processes menu items on the f
 
 ## Changelog
 
+### 1.3.4
+- **Fix:** Fixed "Plugin not found" error on details popup by using high-priority filter `plugins_api_result` to shield update payloads from mutation
+- **Fix:** Avoided PHP fatal errors by replacing dynamic `get_plugin_data()` calls with static constants
+- **Improved:** Replaced PHP 8.0+ functions with backward-compatible code for PHP 7.x support
+- **Improved:** Support for custom plugin folder names during checks and updates
+
 ### 1.3.3
 - **Fix:** Resolved a fatal error when clicking "View details" due to Parsedown 1.8.0 removing the deprecated `setSafeMode()` method (updated to `setMarkupEscaped()`).
 

@@ -131,8 +131,101 @@ class AMIV_GitHub_Updater
     {
         add_filter('update_plugins_github.com', array(self::class, 'check_for_update'), 10, 4);
         add_filter('plugins_api', array(self::class, 'plugin_info'), 20, 3);
+        add_filter('plugins_api_result', array(self::class, 'finalize_plugin_info'), PHP_INT_MAX, 3);
         add_filter('upgrader_source_selection', array(self::class, 'fix_folder_name'), 10, 4);
         add_action('admin_head', array(self::class, 'plugin_info_css'));
+    }
+
+    /**
+     * Rebuild the final plugin information object after all earlier filters.
+     *
+     * Some sites run additional `plugins_api_result` filters that mutate or
+     * strip fields such as `sections`. Returning a fresh object at the highest
+     * practical priority ensures WordPress core receives the expected shape.
+     *
+     * @param false|object|array $result Plugin API result.
+     * @param string             $action Requested action.
+     * @param object             $args   API arguments.
+     * @return false|object|array
+     */
+    public static function finalize_plugin_info($result, $action, $args)
+    {
+        if (!self::is_plugin_information_api_request($action, $args)) {
+            return $result;
+        }
+
+        return self::get_safe_plugin_info_result();
+    }
+
+    /**
+     * Check whether the current API request is asking for this plugin.
+     *
+     * @param string $action Requested action.
+     * @param mixed  $args   API arguments.
+     * @return bool
+     */
+    private static function is_plugin_information_api_request($action, $args): bool
+    {
+        return 'plugin_information' === $action
+            && is_object($args)
+            && isset($args->slug)
+            && self::PLUGIN_SLUG === $args->slug;
+    }
+
+    /**
+     * Get the active plugin file path relative to the plugins directory.
+     *
+     * @return string
+     */
+    private static function get_plugin_file(): string
+    {
+        if (defined('AMIV_PLUGIN_BASENAME') && is_string(AMIV_PLUGIN_BASENAME) && '' !== AMIV_PLUGIN_BASENAME) {
+            return AMIV_PLUGIN_BASENAME;
+        }
+
+        return self::PLUGIN_FILE;
+    }
+
+    /**
+     * Get the active plugin directory relative to the plugins directory.
+     *
+     * @return string
+     */
+    private static function get_plugin_directory(): string
+    {
+        return dirname(self::get_plugin_file());
+    }
+
+    /**
+     * Build the plugin information object once and return a fresh clone.
+     *
+     * @return stdClass
+     */
+    private static function get_safe_plugin_info_result(): stdClass
+    {
+        static $plugin_info = null;
+
+        if ($plugin_info instanceof stdClass) {
+            return clone $plugin_info;
+        }
+
+        try {
+            $plugin_info = self::build_plugin_info_result();
+        } catch (Throwable $throwable) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log(sprintf(
+                    '%s plugin details fallback: %s in %s:%d',
+                    self::PLUGIN_NAME,
+                    $throwable->getMessage(),
+                    $throwable->getFile(),
+                    $throwable->getLine()
+                ));
+            }
+
+            $plugin_info = self::build_fallback_plugin_info_result();
+        }
+
+        return clone $plugin_info;
     }
 
     /**
@@ -208,7 +301,7 @@ class AMIV_GitHub_Updater
                 if (
                     isset($asset['browser_download_url']) &&
                     isset($asset['name']) &&
-                    str_ends_with($asset['name'], '.zip')
+                    substr($asset['name'], -4) === '.zip'
                 ) {
                     return $asset['browser_download_url'];
                 }
@@ -217,6 +310,34 @@ class AMIV_GitHub_Updater
 
         // Fallback to GitHub's auto-generated zipball
         return $release_data['zipball_url'] ?? '';
+    }
+
+    /**
+     * Get a package URL suitable for the plugin details footer action button.
+     *
+     * WordPress only renders the plugin-information footer button when the
+     * plugin info payload includes a non-empty download_link, even if the
+     * plugin is already installed and active.
+     *
+     * @param array|null $release_data Release data from GitHub API.
+     * @return string
+     */
+    private static function get_plugin_info_download_link(?array $release_data = null): string
+    {
+        if (is_array($release_data)) {
+            $package_url = self::get_package_url($release_data);
+
+            if ('' !== $package_url) {
+                return $package_url;
+            }
+        }
+
+        return sprintf(
+            'https://github.com/%s/%s/releases/latest/download/%s.zip',
+            self::GITHUB_USER,
+            self::GITHUB_REPO,
+            self::GITHUB_REPO
+        );
     }
 
     /**
@@ -231,7 +352,7 @@ class AMIV_GitHub_Updater
     public static function check_for_update($update, array $plugin_data, string $plugin_file, $locales)
     {
         // Verify this is our plugin
-        if (self::PLUGIN_FILE !== $plugin_file) {
+        if (self::get_plugin_file() !== $plugin_file) {
             return $update;
         }
 
@@ -252,7 +373,7 @@ class AMIV_GitHub_Updater
         return array(
             'id'           => 'github.com/' . self::GITHUB_USER . '/' . self::GITHUB_REPO,
             'slug'         => self::PLUGIN_SLUG,
-            'plugin'       => self::PLUGIN_FILE,
+            'plugin'       => self::get_plugin_file(),
             'new_version'  => $new_version,
             'version'      => $new_version,
             'package'      => self::get_package_url($release_data),
@@ -268,9 +389,6 @@ class AMIV_GitHub_Updater
     /**
      * Provide plugin information for the WordPress plugin details popup.
      *
-     * Reads sections (description, installation, FAQ, changelog) from the
-     * local README.md instead of fetching from the GitHub release body.
-     *
      * @param false|object|array $res    The result object or array.
      * @param string             $action The type of information being requested.
      * @param object             $args   Plugin API arguments.
@@ -278,36 +396,55 @@ class AMIV_GitHub_Updater
      */
     public static function plugin_info($res, $action, $args)
     {
-        if ('plugin_information' !== $action) {
+        if (!self::is_plugin_information_api_request($action, $args)) {
             return $res;
         }
 
-        if (!isset($args->slug) || self::PLUGIN_SLUG !== $args->slug) {
-            return $res;
-        }
+        return self::get_safe_plugin_info_result();
+    }
 
-        $plugin_file = WP_PLUGIN_DIR . '/' . self::PLUGIN_FILE;
-        $plugin_data = get_plugin_data($plugin_file, false, false);
+    /**
+     * Build plugin information for the WordPress details modal.
+     *
+     * @return stdClass
+     */
+    private static function build_plugin_info_result(): stdClass
+    {
         $release_data = self::get_release_data();
-
-        $version = $release_data
+        $installed_version = defined('AMIV_VERSION') ? AMIV_VERSION : '1.0.0';
+        $release_version = $release_data
             ? ltrim($release_data['tag_name'], 'v')
-            : ($plugin_data['Version'] ?? '1.0.0');
+            : '';
+        $version = $installed_version;
+        $has_update = '' !== $release_version
+            && version_compare($release_version, $installed_version, '>');
+
+        if ($has_update) {
+            $version = $release_version;
+        }
 
         $res               = new stdClass();
         $res->name         = self::PLUGIN_NAME;
         $res->slug         = self::PLUGIN_SLUG;
-        $res->plugin       = self::PLUGIN_FILE;
+        $res->plugin       = self::get_plugin_file();
         $res->version      = $version;
         $res->author       = sprintf('<a href="https://github.com/%s">%s</a>', self::GITHUB_USER, self::GITHUB_USER);
         $res->homepage     = sprintf('https://github.com/%s/%s', self::GITHUB_USER, self::GITHUB_REPO);
         $res->requires     = self::REQUIRES_WP;
         $res->tested       = get_bloginfo('version');
         $res->requires_php = self::REQUIRES_PHP;
+        $res->external     = true;
+        $res->banners      = array();
+        $res->icons        = array();
 
-        if ($release_data) {
-            $res->download_link = self::get_package_url($release_data);
-            $res->last_updated  = $release_data['published_at'] ?? '';
+        $download_link = self::get_plugin_info_download_link($release_data);
+
+        if ('' !== $download_link) {
+            $res->download_link = $download_link;
+        }
+
+        if ($release_data && !empty($release_data['published_at'])) {
+            $res->last_updated  = $release_data['published_at'];
         }
 
         // Build sections from local README.md.
@@ -327,14 +464,10 @@ class AMIV_GitHub_Updater
             $res->sections['faq'] = $readme['faq'];
         }
 
-        // When an update is available, the local README only contains the
-        // installed version's changelog.  Prepend the GitHub release body
-        // so the user sees what's new in the upcoming version.
-        $changelog_html      = '';
-        $installed_version   = $plugin_data['Version'] ?? '0.0.0';
+        $changelog_html = '';
 
-        if ($release_data && !empty($release_data['body']) && version_compare($installed_version, $version, '<')) {
-            $changelog_html .= '<h4>' . esc_html($version) . '</h4>'
+        if ($has_update && !empty($release_data['body'])) {
+            $changelog_html .= '<h4>' . esc_html($release_version) . '</h4>'
                              . self::markdown_to_html($release_data['body']);
         }
 
@@ -351,6 +484,45 @@ class AMIV_GitHub_Updater
             );
 
         return $res;
+    }
+
+    /**
+     * Build a small fallback payload if plugin details generation fails.
+     *
+     * @return stdClass
+     */
+    private static function build_fallback_plugin_info_result(): stdClass
+    {
+        $result               = new stdClass();
+        $result->name         = self::PLUGIN_NAME;
+        $result->slug         = self::PLUGIN_SLUG;
+        $result->plugin       = self::get_plugin_file();
+        $result->version      = defined('AMIV_VERSION') ? AMIV_VERSION : '1.0.0';
+        $result->author       = sprintf('<a href="https://github.com/%s">%s</a>', self::GITHUB_USER, self::GITHUB_USER);
+        $result->homepage     = sprintf('https://github.com/%s/%s', self::GITHUB_USER, self::GITHUB_REPO);
+        $result->requires     = self::REQUIRES_WP;
+        $result->tested       = get_bloginfo('version');
+        $result->requires_php = self::REQUIRES_PHP;
+        $result->external     = true;
+        $result->banners      = array();
+        $result->icons        = array();
+
+        $download_link = self::get_plugin_info_download_link();
+
+        if ('' !== $download_link) {
+            $result->download_link = $download_link;
+        }
+
+        $result->sections     = array(
+            'description' => '<p>' . esc_html(self::PLUGIN_DESCRIPTION) . '</p>',
+            'changelog'   => sprintf(
+                '<p>See <a href="https://github.com/%s/%s/releases" target="_blank">GitHub releases</a> for changelog.</p>',
+                esc_attr(self::GITHUB_USER),
+                esc_attr(self::GITHUB_REPO)
+            ),
+        );
+
+        return $result;
     }
 
     /**
@@ -560,12 +732,12 @@ class AMIV_GitHub_Updater
         }
 
         // Check if this is our plugin
-        if (self::PLUGIN_FILE !== $hook_extra['plugin']) {
+        if (self::get_plugin_file() !== $hook_extra['plugin']) {
             return $source;
         }
 
         // Expected folder name (extract from PLUGIN_FILE)
-        $correct_folder = dirname(self::PLUGIN_FILE);
+        $correct_folder = self::get_plugin_directory();
 
         // Get the current folder name from source path
         $source_folder = basename(untrailingslashit($source));
