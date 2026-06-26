@@ -494,7 +494,7 @@ class AMIV_GitHub_Updater
         }
 
         $parsedown = new Parsedown();
-        $parsedown->setSafeMode(true);
+        $parsedown->setMarkupEscaped(true);
 
         $html = $parsedown->text($markdown);
 

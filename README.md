@@ -1,8 +1,8 @@
+![Plugin Screenshot](https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/blob/main/screenshot.png)
+
 # Advanced Menu Items Visibility Control
 
 A WordPress plugin that provides advanced visibility controls for navigation menu items based on user authentication status, roles, and Restrict Content Pro membership settings.
-
-![Plugin Screenshot](https://github.com/guilamu/Advanced-Menu-Items-Visibility-Control/blob/main/screenshot.png)
 
 ## Description
 
@@ -154,6 +154,9 @@ Yes. If a parent menu item is hidden, all its children are automatically hidden 
 The plugin uses efficient WordPress hooks and only processes menu items on the frontend. Performance impact is minimal.
 
 ## Changelog
+
+### 1.3.3
+- **Fix:** Resolved a fatal error when clicking "View details" due to Parsedown 1.8.0 removing the deprecated `setSafeMode()` method (updated to `setMarkupEscaped()`).
 
 ### 1.3.2
 - **New:** Added CSS pattern banner in plugin details modal (geometric B&W background with styled h2 title pill, no external image required)
